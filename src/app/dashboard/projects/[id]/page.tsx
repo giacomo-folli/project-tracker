@@ -2,13 +2,13 @@ import { createClient } from "../../../../../supabase/server";
 import { notFound, redirect } from "next/navigation";
 import DashboardNavbar from "@/components/dashboard-navbar";
 import { Button } from "@/components/ui/button";
+import ShareLinkButton from "@/components/share-link-button";
 import Link from "next/link";
 import {
   ArrowLeftIcon,
   CalendarIcon,
   CheckCircle2Icon,
   ClockIcon,
-  LinkIcon,
   PlusIcon,
   Share2Icon,
 } from "lucide-react";
@@ -97,9 +97,11 @@ export default async function ProjectDetailsPage({
     }
   };
 
-  const shareUrl = project.public_share_id
-    ? `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/projects/${project.public_share_id}`
-    : null;
+  // const shareUrl = project.public_share_id
+  // ? `${process.env.NEXT_PUBLIC_SITE_URL || window?.location?.origin}/projects/${project.public_share_id}`
+  // : null;
+
+  const shareUrl = `https://xenodochial-leavitt4-ntlw8.view-3.tempo-dev.app/projects/${project.public_share_id}`;
 
   return (
     <>
@@ -155,16 +157,8 @@ export default async function ProjectDetailsPage({
                 buttonText="Edit Project"
                 buttonVariant="outline"
               />
-              {project.is_public && project.public_share_id && (
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    navigator.clipboard.writeText(shareUrl || "");
-                    alert("Share link copied to clipboard!");
-                  }}
-                >
-                  <LinkIcon className="mr-2 h-4 w-4" /> Copy Share Link
-                </Button>
+              {project.is_public && project.public_share_id && shareUrl && (
+                <ShareLinkButton shareUrl={shareUrl} />
               )}
             </div>
           </div>

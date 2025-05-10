@@ -16,7 +16,6 @@ import {
 
 type ProjectCardProps = {
   project: Tables<"projects">;
-  onDelete?: () => void;
 };
 
 export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
@@ -30,7 +29,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
         const formData = new FormData();
         formData.append("id", project.id);
         await deleteProjectAction(formData);
-        if (onDelete) onDelete();
+        router.refresh(); // Use router.refresh() instead of callback
       } catch (error) {
         console.error("Error deleting project:", error);
       } finally {
@@ -154,7 +153,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
             buttonText="Edit"
             buttonVariant="secondary"
             buttonSize="sm"
-            onSuccess={onDelete}
+            onSuccess={() => router.refresh()} // Use router.refresh() instead of callback
           />
           <Button
             variant="destructive"

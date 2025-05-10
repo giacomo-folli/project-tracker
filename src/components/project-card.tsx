@@ -154,9 +154,7 @@ export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
             buttonText="Edit"
             buttonVariant="secondary"
             buttonSize="sm"
-            onSuccess={() => {
-              if (onDelete) onDelete();
-            }}
+            onSuccess={onDelete}
           />
           <Button
             variant="destructive"

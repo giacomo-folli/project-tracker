@@ -1,4 +1,5 @@
 import DashboardNavbar from "@/components/dashboard-navbar";
+import DashboardStats from "@/components/dashboard-stats";
 import { InfoIcon, UserCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { createClient } from "../../../supabase/server";

@@ -122,20 +122,7 @@ export default function ProjectForm({
                 <option value="on_hold">On Hold</option>
               </select>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="progress" className="text-right">
-                Progress (%)
-              </Label>
-              <Input
-                id="progress"
-                name="progress"
-                type="number"
-                min="0"
-                max="100"
-                defaultValue={project?.progress || 0}
-                className="col-span-3"
-              />
-            </div>
+            {/* Progress input removed as it's now calculated based on milestones */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="is_public" className="text-right">
                 Public

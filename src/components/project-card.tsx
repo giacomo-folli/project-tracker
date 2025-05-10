@@ -18,7 +18,7 @@ type ProjectCardProps = {
   project: Tables<"projects">;
 };
 
-export default function ProjectCard({ project, onDelete }: ProjectCardProps) {
+export default function ProjectCard({ project }: ProjectCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 

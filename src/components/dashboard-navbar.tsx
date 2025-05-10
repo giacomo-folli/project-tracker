@@ -20,12 +20,13 @@ export default function DashboardNavbar() {
     <nav className="w-full border-b border-gray-200 bg-white py-4">
       <div className="container mx-auto px-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Link href="/" prefetch className="text-xl font-bold">
-            Logo
+          <Link href="/dashboard" prefetch className="text-xl font-bold">
+            Dashboard
           </Link>
+          <span className="text-xl font-bold text-gray-400 mx-2">-</span>
           <Link
             href="/dashboard/projects"
-            className="text-gray-600 hover:text-gray-900"
+            className="text-xl font-bold text-gray-600 hover:text-gray-900"
           >
             Projects
           </Link>

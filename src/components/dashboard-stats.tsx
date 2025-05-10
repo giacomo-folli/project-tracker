@@ -2,31 +2,33 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { Tables } from "@/types/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-type DashboardStatsProps = {
-  projects: Tables<"projects">[];
-  milestones: Tables<"milestones">[];
+type StatsData = {
+  activeProjects: number;
+  completedProjects: number;
+  onHoldProjects: number;
+  totalProjects: number;
+  averageProgress: number;
+  upcomingMilestones: number;
+  completedMilestones: number;
+  totalMilestones: number;
 };
 
-export default function DashboardStats({ projects, milestones }: DashboardStatsProps) {
-  const activeProjects = projects.filter(p => p.status === "in_progress").length;
-  const completedProjects = projects.filter(p => p.status === "completed").length;
-  const onHoldProjects = projects.filter(p => p.status === "on_hold").length;
+type DashboardStatsProps = {
+  stats: StatsData;
+};
 
-  const upcomingMilestones = milestones.filter(m => !m.is_completed).length;
-  const completedMilestones = milestones.filter(m => m.is_completed).length;
-
+export default function DashboardStats({ stats }: DashboardStatsProps) {
   const projectData = [
-    { name: "Active", value: activeProjects, color: "#8b5cf6" },
-    { name: "Completed", value: completedProjects, color: "#a78bfa" },
-    { name: "On Hold", value: onHoldProjects, color: "#c4b5fd" },
+    { name: "Active", value: stats.activeProjects, color: "#8b5cf6" },
+    { name: "Completed", value: stats.completedProjects, color: "#a78bfa" },
+    { name: "On Hold", value: stats.onHoldProjects, color: "#c4b5fd" },
   ];
 
   const milestoneData = [
-    { name: "Upcoming", value: upcomingMilestones, color: "#8b5cf6" },
-    { name: "Completed", value: completedMilestones, color: "#c4b5fd" },
+    { name: "Upcoming", value: stats.upcomingMilestones, color: "#8b5cf6" },
+    { name: "Completed", value: stats.completedMilestones, color: "#c4b5fd" },
   ];
 
   return (
@@ -111,16 +113,16 @@ export default function DashboardStats({ projects, milestones }: DashboardStatsP
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col">
-            <span className="text-3xl font-bold">{projects.length}</span>
+            <span className="text-3xl font-bold">{stats.totalProjects}</span>
             <span className="text-sm text-muted-foreground">Total Projects</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-3xl font-bold">{milestones.length}</span>
+            <span className="text-3xl font-bold">{stats.totalMilestones}</span>
             <span className="text-sm text-muted-foreground">Total Milestones</span>
           </div>
           <div className="flex flex-col">
             <span className="text-3xl font-bold">
-              {Math.round(projects.reduce((acc, p) => acc + p.progress, 0) / projects.length || 0)}%
+              {stats.averageProgress}%
             </span>
             <span className="text-sm text-muted-foreground">Average Progress</span>
           </div>

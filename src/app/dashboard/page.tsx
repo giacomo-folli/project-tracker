@@ -1,7 +1,8 @@
 import DashboardNavbar from "@/components/dashboard-navbar";
-import DashboardStats from "@/components/dashboard-stats";
+// import DashboardStats from "@/components/dashboard-stats"; // Will be dynamically imported
 import { InfoIcon, UserCircle } from "lucide-react";
 import { redirect } from "next/navigation";
+import dynamic from "next/dynamic";
 import { createClient } from "../../../supabase/server";
 
 export default async function Dashboard() {
@@ -17,18 +18,44 @@ export default async function Dashboard() {
 
 
 
-  const { data: projects } = await supabase
+  const { data: projectsData } = await supabase
     .from("projects")
-    .select("*")
+    .select("id, status, progress") // Select only necessary columns
     .eq("user_id", user.id);
 
-  const { data: milestones } = await supabase
+  const projects = projectsData || [];
+
+  const { data: milestonesData } = await supabase
     .from("milestones")
-    .select("*")
+    .select("is_completed") // Select only necessary columns
     .in(
       "project_id",
-      (projects || []).map((p) => p.id)
+      projects.map((p) => p.id)
     );
+  
+  const milestones = milestonesData || [];
+
+  // Calculate stats on the server
+  const activeProjects = projects.filter(p => p.status === "in_progress").length;
+  const completedProjects = projects.filter(p => p.status === "completed").length;
+  const onHoldProjects = projects.filter(p => p.status === "on_hold").length;
+  const totalProjects = projects.length;
+  const averageProgress = Math.round(projects.reduce((acc, p) => acc + p.progress, 0) / totalProjects || 0);
+
+  const upcomingMilestones = milestones.filter(m => !m.is_completed).length;
+  const completedMilestonesCount = milestones.filter(m => m.is_completed).length;
+  const totalMilestones = milestones.length;
+
+  const stats = {
+    activeProjects,
+    completedProjects,
+    onHoldProjects,
+    totalProjects,
+    averageProgress,
+    upcomingMilestones,
+    completedMilestones: completedMilestonesCount, // Renamed to avoid conflict
+    totalMilestones,
+  };
 
   return (
     <>
@@ -45,7 +72,8 @@ export default async function Dashboard() {
           </header>
 
           {/* Dashboard Stats */}
-          <DashboardStats projects={projects || []} milestones={milestones || []} />
+          <DynamicDashboardStats stats={stats} />
+          <DynamicDashboardSecondaryStats stats={stats} />
 
           {/* User Profile Section */}
           <section className="bg-card rounded-xl p-6 border shadow-sm">
@@ -67,3 +95,51 @@ export default async function Dashboard() {
     </>
   );
 }
+
+// Skeleton loader for DashboardStats
+const DashboardStatsSkeleton = () => (
+  <div className="grid gap-4 md:grid-cols-3">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="bg-card rounded-lg border shadow-sm p-5">
+        <div className="h-8 bg-muted rounded w-3/4 mb-4 animate-pulse"></div>
+        <div className="h-48 bg-muted rounded animate-pulse"></div>
+        <div className="mt-4 space-y-2">
+          <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+          <div className="h-4 bg-muted rounded w-2/3 animate-pulse"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const DynamicDashboardStats = dynamic(
+  () => import("@/components/dashboard-stats"),
+  {
+    loading: () => <DashboardStatsSkeleton />, // Re-using the same skeleton for now
+    ssr: false
+  }
+);
+
+// Skeleton loader for DashboardSecondaryStats (can be customized later)
+const DashboardSecondaryStatsSkeleton = () => (
+  <div className="grid gap-4 md:grid-cols-3">
+    {[...Array(3)].map((_, i) => (
+      <div key={i} className="bg-card rounded-lg border shadow-sm p-5">
+        <div className="h-8 bg-muted rounded w-3/4 mb-4 animate-pulse"></div>
+        <div className="h-24 bg-muted rounded animate-pulse"></div> {/* Adjusted height for potentially different content */}
+        <div className="mt-4 space-y-2">
+          <div className="h-4 bg-muted rounded w-1/2 animate-pulse"></div>
+          <div className="h-4 bg-muted rounded w-2/3 animate-pulse"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
+const DynamicDashboardSecondaryStats = dynamic(
+  () => import("@/components/dashboard-secondary-stats"),
+  {
+    loading: () => <DashboardSecondaryStatsSkeleton />,
+    ssr: false
+  }
+);

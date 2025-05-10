@@ -16,6 +16,19 @@ export default async function Dashboard() {
 
 
 
+  const { data: projects } = await supabase
+    .from("projects")
+    .select("*")
+    .eq("user_id", user.id);
+
+  const { data: milestones } = await supabase
+    .from("milestones")
+    .select("*")
+    .in(
+      "project_id",
+      (projects || []).map((p) => p.id)
+    );
+
   return (
     <>
       <DashboardNavbar />
@@ -29,6 +42,9 @@ export default async function Dashboard() {
               <span>This is a protected page only visible to authenticated users</span>
             </div>
           </header>
+
+          {/* Dashboard Stats */}
+          <DashboardStats projects={projects || []} milestones={milestones || []} />
 
           {/* User Profile Section */}
           <section className="bg-card rounded-xl p-6 border shadow-sm">

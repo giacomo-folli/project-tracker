@@ -27,46 +27,56 @@ ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE milestones ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for projects
-CREATE POLICY "Users can view their own projects" 
-  ON projects FOR SELECT 
+DROP POLICY IF EXISTS "Users can view their own projects" ON projects;
+CREATE POLICY "Users can view their own projects"
+  ON projects FOR SELECT
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can create their own projects" 
-  ON projects FOR INSERT 
+DROP POLICY IF EXISTS "Users can create their own projects" ON projects;
+CREATE POLICY "Users can create their own projects"
+  ON projects FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can update their own projects" 
-  ON projects FOR UPDATE 
+DROP POLICY IF EXISTS "Users can update their own projects" ON projects;
+CREATE POLICY "Users can update their own projects"
+  ON projects FOR UPDATE
   USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete their own projects" 
-  ON projects FOR DELETE 
+DROP POLICY IF EXISTS "Users can delete their own projects" ON projects;
+CREATE POLICY "Users can delete their own projects"
+  ON projects FOR DELETE
   USING (auth.uid() = user_id);
 
 -- Create policies for milestones
-CREATE POLICY "Users can view milestones of their own projects" 
-  ON milestones FOR SELECT 
+DROP POLICY IF EXISTS "Users can view milestones of their own projects" ON milestones;
+CREATE POLICY "Users can view milestones of their own projects"
+  ON milestones FOR SELECT
   USING ((SELECT user_id FROM projects WHERE id = milestones.project_id) = auth.uid());
 
-CREATE POLICY "Users can create milestones for their own projects" 
-  ON milestones FOR INSERT 
+DROP POLICY IF EXISTS "Users can create milestones for their own projects" ON milestones;
+CREATE POLICY "Users can create milestones for their own projects"
+  ON milestones FOR INSERT
   WITH CHECK ((SELECT user_id FROM projects WHERE id = milestones.project_id) = auth.uid());
 
-CREATE POLICY "Users can update milestones of their own projects" 
-  ON milestones FOR UPDATE 
+DROP POLICY IF EXISTS "Users can update milestones of their own projects" ON milestones;
+CREATE POLICY "Users can update milestones of their own projects"
+  ON milestones FOR UPDATE
   USING ((SELECT user_id FROM projects WHERE id = milestones.project_id) = auth.uid());
 
-CREATE POLICY "Users can delete milestones of their own projects" 
-  ON milestones FOR DELETE 
+DROP POLICY IF EXISTS "Users can delete milestones of their own projects" ON milestones;
+CREATE POLICY "Users can delete milestones of their own projects"
+  ON milestones FOR DELETE
   USING ((SELECT user_id FROM projects WHERE id = milestones.project_id) = auth.uid());
 
 -- Create policy for public projects
-CREATE POLICY "Anyone can view public projects" 
-  ON projects FOR SELECT 
+DROP POLICY IF EXISTS "Anyone can view public projects" ON projects;
+CREATE POLICY "Anyone can view public projects"
+  ON projects FOR SELECT
   USING (is_public = true);
 
-CREATE POLICY "Anyone can view milestones of public projects" 
-  ON milestones FOR SELECT 
+DROP POLICY IF EXISTS "Anyone can view milestones of public projects" ON milestones;
+CREATE POLICY "Anyone can view milestones of public projects"
+  ON milestones FOR SELECT
   USING ((SELECT is_public FROM projects WHERE id = milestones.project_id) = true);
 
 -- Enable realtime

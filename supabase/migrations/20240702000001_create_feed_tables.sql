@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS feed_items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   milestone_id UUID NOT NULL REFERENCES milestones(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL,
+  user_id UUID NOT NULL REFERENCES public.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   type TEXT NOT NULL,
   data JSONB
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS feed_items (
 CREATE TABLE IF NOT EXISTS comments (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   feed_item_id UUID NOT NULL REFERENCES feed_items(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL,
+  user_id UUID NOT NULL REFERENCES public.users(id),
   content TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE TABLE IF NOT EXISTS likes (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   feed_item_id UUID NOT NULL REFERENCES feed_items(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL,
+  user_id UUID NOT NULL REFERENCES public.users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(feed_item_id, user_id)
 );

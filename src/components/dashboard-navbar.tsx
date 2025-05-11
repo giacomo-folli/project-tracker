@@ -29,6 +29,12 @@ export default function DashboardNavbar() {
           >
             Projects
           </Link>
+          <Link
+            href="/dashboard/feed"
+            className="text-gray-600 hover:text-gray-900"
+          >
+            Feed
+          </Link>
         </div>
         <div className="flex gap-4 items-center">
           <DropdownMenu>

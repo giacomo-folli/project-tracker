@@ -6,6 +6,46 @@ import { redirect } from "next/navigation";
 import { createClient } from "../../supabase/server";
 import { Tables, TablesInsert } from "@/types/supabase";
 
+// Helper function to update project progress based on milestones
+async function updateProjectProgress(supabase: any, projectId: string) {
+  try {
+    // Get all milestones for the project
+    const { data: milestones, error: milestonesError } = await supabase
+      .from("milestones")
+      .select("*")
+      .eq("project_id", projectId);
+
+    if (milestonesError) {
+      console.error("Error fetching milestones:", milestonesError);
+      return;
+    }
+
+    // Calculate progress percentage
+    let progress = 0;
+    if (milestones && milestones.length > 0) {
+      const completedMilestones = milestones.filter((m: any) => m.is_completed);
+      progress = Math.round(
+        (completedMilestones.length / milestones.length) * 100,
+      );
+    }
+
+    // Update the project progress
+    const { error: updateError } = await supabase
+      .from("projects")
+      .update({
+        progress,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", projectId);
+
+    if (updateError) {
+      console.error("Error updating project progress:", updateError);
+    }
+  } catch (error) {
+    console.error("Error in updateProjectProgress:", error);
+  }
+}
+
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
@@ -356,21 +396,56 @@ export const createMilestoneAction = async (formData: FormData) => {
     );
   }
 
-  const { error } = await supabase.from("milestones").insert({
-    project_id: projectId,
-    title,
-    description,
-    due_date: dueDate,
-  });
+  // Insert the milestone
+  const { data: milestone, error: milestoneError } = await supabase
+    .from("milestones")
+    .insert({
+      project_id: projectId,
+      title,
+      description,
+      due_date: dueDate,
+    })
+    .select()
+    .single();
 
-  if (error) {
-    console.error(error);
+  if (milestoneError) {
+    console.error(milestoneError);
     return encodedRedirect(
       "error",
       `/dashboard/projects`,
-      `Failed to create milestone: ${error.message}`,
+      `Failed to create milestone: ${milestoneError.message}`,
     );
   }
+
+  // Create a feed item for the new milestone
+  const { data: feedItem, error: feedError } = await supabase
+    .from("feed_items")
+    .insert({
+      project_id: projectId,
+      milestone_id: milestone.id,
+      user_id: user.id,
+      type: "milestone_created",
+      data: {
+        milestone_title: title,
+        project_name: project.name,
+        user_name: user.user_metadata?.full_name || "Anonymous",
+      },
+    })
+    .select();
+
+  console.log("Created feed item for new milestone:", {
+    success: !feedError,
+    feedItemId: feedItem?.[0]?.id,
+    error: feedError?.message,
+  });
+
+  if (feedError) {
+    console.error("Failed to create feed item:", feedError);
+    // Continue even if feed item creation fails
+  }
+
+  // Update project progress based on milestones
+  await updateProjectProgress(supabase, projectId);
 
   return encodedRedirect(
     "success",
@@ -399,12 +474,28 @@ export const updateMilestoneAction = async (formData: FormData) => {
   const description = formData.get("description")?.toString() || null;
   const dueDate = formData.get("due_date")?.toString() || null;
   const isCompleted = formData.get("is_completed") === "true";
+  const previouslyCompleted = formData.get("previously_completed") === "true";
 
   if (!id || !title) {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
       "Milestone ID and title are required",
+    );
+  }
+
+  // Get milestone details before update to get project_id
+  const { data: existingMilestone } = await supabase
+    .from("milestones")
+    .select("project_id, title")
+    .eq("id", id)
+    .single();
+
+  if (!existingMilestone) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/projects",
+      "Milestone not found",
     );
   }
 
@@ -427,6 +518,45 @@ export const updateMilestoneAction = async (formData: FormData) => {
       `Failed to update milestone: ${error.message}`,
     );
   }
+
+  // If milestone is newly completed, create a feed item
+  if (isCompleted && !previouslyCompleted) {
+    const { data: project } = await supabase
+      .from("projects")
+      .select("name")
+      .eq("id", existingMilestone.project_id)
+      .single();
+
+    // Create feed item
+    const { data: feedItem, error: feedError } = await supabase
+      .from("feed_items")
+      .insert({
+        project_id: existingMilestone.project_id,
+        milestone_id: id,
+        user_id: user.id,
+        type: "milestone_completed",
+        data: {
+          milestone_title: title,
+          project_name: project?.name || "Unknown Project",
+          user_name: user.user_metadata?.full_name || "Anonymous",
+        },
+      })
+      .select();
+
+    console.log("Created feed item for completed milestone:", {
+      success: !feedError,
+      feedItemId: feedItem?.[0]?.id,
+      error: feedError?.message,
+    });
+
+    if (feedError) {
+      console.error("Failed to create feed item:", feedError);
+      // Continue even if feed item creation fails
+    }
+  }
+
+  // Update project progress based on milestones
+  await updateProjectProgress(supabase, existingMilestone.project_id);
 
   return encodedRedirect(
     "success",
@@ -460,6 +590,23 @@ export const deleteMilestoneAction = async (formData: FormData) => {
     );
   }
 
+  // Get milestone details before deletion to get project_id
+  const { data: milestone } = await supabase
+    .from("milestones")
+    .select("project_id")
+    .eq("id", id)
+    .single();
+
+  if (!milestone) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/projects",
+      "Milestone not found",
+    );
+  }
+
+  const projectId = milestone.project_id;
+
   const { error } = await supabase.from("milestones").delete().eq("id", id);
 
   if (error) {
@@ -470,6 +617,9 @@ export const deleteMilestoneAction = async (formData: FormData) => {
       `Failed to delete milestone: ${error.message}`,
     );
   }
+
+  // Update project progress after milestone deletion
+  await updateProjectProgress(supabase, projectId);
 
   return encodedRedirect(
     "success",

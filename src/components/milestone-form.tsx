@@ -145,6 +145,11 @@ export default function MilestoneForm({
                   >
                     Mark as completed
                   </label>
+                  <input
+                    type="hidden"
+                    name="previously_completed"
+                    value={milestone?.is_completed?.toString() || "false"}
+                  />
                 </div>
               </div>
             )}

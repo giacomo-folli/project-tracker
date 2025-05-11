@@ -1,0 +1,9 @@
+import FeedPage from "@/app/feed/page";
+
+export default function FeedPageStoryboard() {
+  return (
+    <div className="bg-white">
+      <FeedPage />
+    </div>
+  );
+}

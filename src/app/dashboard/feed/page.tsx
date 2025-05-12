@@ -7,9 +7,9 @@ import { redirect } from "next/navigation";
 type FeedItemWithDetails = Tables<"feed_items"> & {
   likes: Tables<"likes">[];
   comments: Tables<"comments">[];
-  users: Tables<"users">;
-  projects: Tables<"projects">;
-  milestones: Tables<"milestones">;
+  users: Tables<"users"> | null;
+  projects: Tables<"projects"> | null;
+  milestones: Tables<"milestones"> | null;
 };
 
 export default async function DashboardFeedPage() {
@@ -44,7 +44,7 @@ export default async function DashboardFeedPage() {
       *,
       likes(*),
       comments(*),
-      users:user_id(*),
+      users(*),
       projects(*),
       milestones(*)
       `,
@@ -93,6 +93,16 @@ export default async function DashboardFeedPage() {
             <div className="bg-red-50 border border-red-200 text-red-800 rounded-lg p-4 mb-6">
               <p className="font-medium">Error loading feed items</p>
               <p className="text-sm">{error.message}</p>
+              <p className="text-sm mt-2">
+                Try using the{" "}
+                <a
+                  href="/dashboard/feed/debug"
+                  className="text-blue-600 underline hover:text-blue-800"
+                >
+                  debug tools
+                </a>{" "}
+                to create test feed items.
+              </p>
             </div>
           )}
 
@@ -112,7 +122,14 @@ export default async function DashboardFeedPage() {
                 </p>
                 <p className="text-sm text-gray-400 mt-2">
                   Try creating a project and completing some milestones to see
-                  activity.
+                  activity, or use the{" "}
+                  <a
+                    href="/dashboard/feed/debug"
+                    className="text-blue-600 underline hover:text-blue-800"
+                  >
+                    debug tools
+                  </a>
+                  .
                 </p>
               </div>
             )}

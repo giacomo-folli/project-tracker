@@ -12,13 +12,13 @@ import { formatDistanceToNow } from "@/utils/utils";
 type FeedItemWithDetails = Tables<"feed_items"> & {
   likes: Tables<"likes">[];
   comments: Tables<"comments">[];
-  users: Tables<"users">;
-  projects: Tables<"projects">;
-  milestones: Tables<"milestones">;
+  users: Tables<"users"> | null;
+  projects: Tables<"projects"> | null;
+  milestones: Tables<"milestones"> | null;
 };
 
 type CommentWithUser = Tables<"comments"> & {
-  users: Tables<"users">;
+  users: Tables<"users"> | null;
 };
 
 export default function FeedItem({

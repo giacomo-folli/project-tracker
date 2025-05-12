@@ -9,14 +9,24 @@ export const createClient = async () => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll().map(({ name, value }) => ({
-            name,
-            value,
-          }));
+        get(name) {
+          return cookieStore.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          return cookiesToSet;
+        set(name, value, options) {
+          try {
+            cookieStore.set(name, value, options);
+          } catch (error) {
+            // Handle the case where cookies are read-only
+            console.warn("Unable to set cookie", error);
+          }
+        },
+        remove(name, options) {
+          try {
+            cookieStore.set(name, "", { ...options, maxAge: 0 });
+          } catch (error) {
+            // Handle the case where cookies are read-only
+            console.warn("Unable to remove cookie", error);
+          }
         },
       },
     },
@@ -29,16 +39,22 @@ export const createClientWithCookies = async (cookieStore: any) => {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return cookieStore.getAll().map(({ name, value }) => ({
-            name,
-            value,
-          }));
+        get(name) {
+          return cookieStore.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
+        set(name, value, options) {
+          try {
             cookieStore.set(name, value, options);
-          });
+          } catch (error) {
+            console.warn("Unable to set cookie", error);
+          }
+        },
+        remove(name, options) {
+          try {
+            cookieStore.set(name, "", { ...options, maxAge: 0 });
+          } catch (error) {
+            console.warn("Unable to remove cookie", error);
+          }
         },
       },
     },

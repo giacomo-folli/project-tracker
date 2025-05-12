@@ -182,6 +182,183 @@ export const resetPasswordAction = async (formData: FormData) => {
   encodedRedirect("success", "/protected/reset-password", "Password updated");
 };
 
+// Profile update actions
+export const updateProfileAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "You must be logged in to update your profile",
+    );
+  }
+
+  const fullName = formData.get("fullName")?.toString() || "";
+  const email = formData.get("email")?.toString() || "";
+
+  // Check if email is being changed
+  const emailChanged = email !== user.email;
+
+  try {
+    // Update user metadata and email if changed
+    const { error: authUpdateError } = await supabase.auth.updateUser({
+      email: emailChanged ? email : undefined,
+      data: { full_name: fullName },
+    });
+
+    if (authUpdateError) throw authUpdateError;
+
+    // Update profile in the database
+    const { error: profileUpdateError } = await supabase
+      .from("users")
+      .update({
+        full_name: fullName,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (profileUpdateError) throw profileUpdateError;
+
+    // Use direct redirect instead of encodedRedirect to avoid NEXT_REDIRECT error
+    const successMessage = emailChanged
+      ? "Profile updated. Please verify your new email address."
+      : "Profile updated successfully";
+    return redirect(
+      `/dashboard/profile?success=${encodeURIComponent(successMessage)}`,
+    );
+  } catch (error: any) {
+    console.error("Error updating profile:", error);
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile",
+      `Failed to update profile: ${error.message}`,
+    );
+  }
+};
+
+export const updatePersonaAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "You must be logged in to update your persona",
+    );
+  }
+
+  const bio = formData.get("bio")?.toString() || "";
+  const passions = formData.get("passions")?.toString() || "";
+  const workProjects = formData.get("workProjects")?.toString() || "";
+
+  try {
+    // Update profile in the database
+    const { error: profileUpdateError } = await supabase
+      .from("users")
+      .update({
+        bio,
+        passions,
+        work_projects: workProjects,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", user.id);
+
+    if (profileUpdateError) throw profileUpdateError;
+
+    // Use direct redirect to avoid NEXT_REDIRECT error
+    return redirect(
+      `/dashboard/profile?tab=persona&success=${encodeURIComponent("Persona updated successfully")}`,
+    );
+  } catch (error: any) {
+    console.error("Error updating persona:", error);
+    // Use direct redirect instead of encodedRedirect to avoid NEXT_REDIRECT error
+    return redirect(
+      `/dashboard/profile?tab=persona&error=${encodeURIComponent(`Failed to update persona: ${error.message}`)}`,
+    );
+  }
+};
+
+export const changePasswordAction = async (formData: FormData) => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return encodedRedirect(
+      "error",
+      "/sign-in",
+      "You must be logged in to change your password",
+    );
+  }
+
+  const currentPassword = formData.get("currentPassword")?.toString();
+  const newPassword = formData.get("newPassword")?.toString();
+  const confirmPassword = formData.get("confirmPassword")?.toString();
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile?tab=password",
+      "All password fields are required",
+    );
+  }
+
+  if (newPassword !== confirmPassword) {
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile?tab=password",
+      "New passwords do not match",
+    );
+  }
+
+  try {
+    // First sign in with the current password to verify it
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email!,
+      password: currentPassword,
+    });
+
+    if (signInError) {
+      return encodedRedirect(
+        "error",
+        "/dashboard/profile?tab=password",
+        "Current password is incorrect",
+      );
+    }
+
+    // Then update to the new password
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) throw updateError;
+
+    return encodedRedirect(
+      "success",
+      "/dashboard/profile?tab=password",
+      "Password changed successfully",
+    );
+  } catch (error: any) {
+    console.error("Error changing password:", error);
+    return encodedRedirect(
+      "error",
+      "/dashboard/profile?tab=password",
+      `Failed to change password: ${error.message}`,
+    );
+  }
+};
+
 export const signOutAction = async () => {
   const supabase = await createClient();
   await supabase.auth.signOut();

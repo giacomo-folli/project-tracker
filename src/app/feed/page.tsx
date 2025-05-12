@@ -6,7 +6,9 @@ import DashboardNavbar from "@/components/dashboard-navbar";
 type FeedItemWithDetails = Tables<"feed_items"> & {
   likes: Tables<"likes">[];
   comments: Tables<"comments">[];
-  users: Tables<"users">;
+  users: Tables<"users"> | null;
+  projects: Tables<"projects"> | null;
+  milestones: Tables<"milestones"> | null;
 };
 
 export default async function FeedPage() {

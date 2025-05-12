@@ -16,6 +16,7 @@ import {
 
 type ProjectCardProps = {
   project: Tables<"projects">;
+  onDelete?: any
 };
 
 export default function ProjectCard({ project, onDelete }: ProjectCardProps) {

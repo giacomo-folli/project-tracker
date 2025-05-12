@@ -4,11 +4,14 @@ import { encodedRedirect } from "@/utils/utils";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "../../supabase/server";
-import { Tables, TablesInsert } from "@/types/supabase";
+import { TablesInsert } from "@/types/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 // Helper function to update project progress based on milestones
-async function updateProjectProgress(supabase: SupabaseClient, projectId: string) {
+async function updateProjectProgress(
+  supabase: SupabaseClient,
+  projectId: string
+) {
   try {
     const { data: milestones, error: milestonesError } = await supabase
       .from("milestones")
@@ -19,7 +22,9 @@ async function updateProjectProgress(supabase: SupabaseClient, projectId: string
       throw new Error(milestonesError.message);
     }
 
-    const completedMilestones = milestones.filter((m: { is_completed: boolean }) => m.is_completed);
+    const completedMilestones = milestones.filter(
+      (m: { is_completed: boolean }) => m.is_completed
+    );
 
     let progress = 0;
     if (milestones.length > 0) {
@@ -37,7 +42,7 @@ async function updateProjectProgress(supabase: SupabaseClient, projectId: string
     if (updateError) {
       throw new Error(updateError.message);
     }
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in updateProjectProgress:", (error as Error).message);
   }
 }
@@ -53,14 +58,11 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Email and password are required",
+      "Email and password are required"
     );
   }
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -86,7 +88,7 @@ export const signUpAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/sign-up",
-    "Thanks for signing up! Please check your email for a verification link.",
+    "Thanks for signing up! Please check your email for a verification link."
   );
 };
 
@@ -126,7 +128,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      "Could not reset password",
+      "Could not reset password"
     );
   }
 
@@ -137,7 +139,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/forgot-password",
-    "Check your email for a link to reset your password.",
+    "Check your email for a link to reset your password."
   );
 };
 
@@ -151,7 +153,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/protected/reset-password",
-      "Password and confirm password are required",
+      "Password and confirm password are required"
     );
   }
 
@@ -159,7 +161,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/dashboard/reset-password",
-      "Passwords do not match",
+      "Passwords do not match"
     );
   }
 
@@ -171,7 +173,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/dashboard/reset-password",
-      "Password update failed",
+      "Password update failed"
     );
   }
 
@@ -190,7 +192,7 @@ export const updateProfileAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to update your profile",
+      "You must be logged in to update your profile"
     );
   }
 
@@ -225,14 +227,14 @@ export const updateProfileAction = async (formData: FormData) => {
       ? "Profile updated. Please verify your new email address."
       : "Profile updated successfully";
     return redirect(
-      `/dashboard/profile?success=${encodeURIComponent(successMessage)}`,
+      `/dashboard/profile?success=${encodeURIComponent(successMessage)}`
     );
-  } catch (error: any) {
-    console.error("Error updating profile:", error);
+  } catch (error: unknown) {
+    console.error("Error updating profile:", (error as Error).message);
     return encodedRedirect(
       "error",
       "/dashboard/profile",
-      `Failed to update profile: ${error.message}`,
+      `Failed to update profile: ${(error as Error).message}`
     );
   }
 };
@@ -248,7 +250,7 @@ export const updatePersonaAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to update your persona",
+      "You must be logged in to update your persona"
     );
   }
 
@@ -272,13 +274,13 @@ export const updatePersonaAction = async (formData: FormData) => {
 
     // Use direct redirect to avoid NEXT_REDIRECT error
     return redirect(
-      `/dashboard/profile?tab=persona&success=${encodeURIComponent("Persona updated successfully")}`,
+      `/dashboard/profile?tab=persona&success=${encodeURIComponent("Persona updated successfully")}`
     );
-  } catch (error: any) {
-    console.error("Error updating persona:", error);
+  } catch (error: unknown) {
+    console.error("Error updating persona:", (error as Error).message);
     // Use direct redirect instead of encodedRedirect to avoid NEXT_REDIRECT error
     return redirect(
-      `/dashboard/profile?tab=persona&error=${encodeURIComponent(`Failed to update persona: ${error.message}`)}`,
+      `/dashboard/profile?tab=persona&error=${encodeURIComponent(`Failed to update persona: ${(error as Error).message}`)}`
     );
   }
 };
@@ -294,7 +296,7 @@ export const changePasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to change your password",
+      "You must be logged in to change your password"
     );
   }
 
@@ -306,7 +308,7 @@ export const changePasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/profile?tab=password",
-      "All password fields are required",
+      "All password fields are required"
     );
   }
 
@@ -314,7 +316,7 @@ export const changePasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/profile?tab=password",
-      "New passwords do not match",
+      "New passwords do not match"
     );
   }
 
@@ -329,7 +331,7 @@ export const changePasswordAction = async (formData: FormData) => {
       return encodedRedirect(
         "error",
         "/dashboard/profile?tab=password",
-        "Current password is incorrect",
+        "Current password is incorrect"
       );
     }
 
@@ -343,14 +345,14 @@ export const changePasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "success",
       "/dashboard/profile?tab=password",
-      "Password changed successfully",
+      "Password changed successfully"
     );
-  } catch (error: any) {
-    console.error("Error changing password:", error);
+  } catch (error: unknown) {
+    console.error("Error changing password:", (error as Error).message);
     return encodedRedirect(
       "error",
-      "/dashboard/profile?tab=password",
-      `Failed to change password: ${error.message}`,
+      "/dashboard/change-password",
+      `Failed to change password: ${(error as Error).message}`
     );
   }
 };
@@ -373,7 +375,7 @@ export const createProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to create a project",
+      "You must be logged in to create a project"
     );
   }
 
@@ -387,7 +389,7 @@ export const createProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Project name is required",
+      "Project name is required"
     );
   }
 
@@ -407,14 +409,14 @@ export const createProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      `Failed to create project: ${error.message}`,
+      `Failed to create project: ${error.message}`
     );
   }
 
   return encodedRedirect(
     "success",
     "/dashboard/projects",
-    "Project created successfully",
+    "Project created successfully"
   );
 };
 
@@ -429,7 +431,7 @@ export const updateProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to update a project",
+      "You must be logged in to update a project"
     );
   }
 
@@ -444,7 +446,7 @@ export const updateProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Project ID and name are required",
+      "Project ID and name are required"
     );
   }
 
@@ -466,14 +468,14 @@ export const updateProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      `Failed to update project: ${error.message}`,
+      `Failed to update project: ${error.message}`
     );
   }
 
   return encodedRedirect(
     "success",
     "/dashboard/projects",
-    "Project updated successfully",
+    "Project updated successfully"
   );
 };
 
@@ -488,7 +490,7 @@ export const deleteProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to delete a project",
+      "You must be logged in to delete a project"
     );
   }
 
@@ -498,7 +500,7 @@ export const deleteProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Project ID is required",
+      "Project ID is required"
     );
   }
 
@@ -513,14 +515,14 @@ export const deleteProjectAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      `Failed to delete project: ${error.message}`,
+      `Failed to delete project: ${error.message}`
     );
   }
 
   return encodedRedirect(
     "success",
     "/dashboard/projects",
-    "Project deleted successfully",
+    "Project deleted successfully"
   );
 };
 
@@ -536,7 +538,7 @@ export const createMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to create a milestone",
+      "You must be logged in to create a milestone"
     );
   }
 
@@ -549,7 +551,7 @@ export const createMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       `/dashboard/projects`,
-      "Project ID and title are required",
+      "Project ID and title are required"
     );
   }
 
@@ -565,7 +567,7 @@ export const createMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Project not found or you don't have permission",
+      "Project not found or you don't have permission"
     );
   }
 
@@ -586,7 +588,7 @@ export const createMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       `/dashboard/projects`,
-      `Failed to create milestone: ${milestoneError.message}`,
+      `Failed to create milestone: ${milestoneError.message}`
     );
   }
 
@@ -623,7 +625,7 @@ export const createMilestoneAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     `/dashboard/projects`,
-    "Milestone created successfully",
+    "Milestone created successfully"
   );
 };
 
@@ -638,7 +640,7 @@ export const updateMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to update a milestone",
+      "You must be logged in to update a milestone"
     );
   }
 
@@ -653,7 +655,7 @@ export const updateMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Milestone ID and title are required",
+      "Milestone ID and title are required"
     );
   }
 
@@ -668,7 +670,7 @@ export const updateMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Milestone not found",
+      "Milestone not found"
     );
   }
 
@@ -688,7 +690,7 @@ export const updateMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      `Failed to update milestone: ${error.message}`,
+      `Failed to update milestone: ${error.message}`
     );
   }
 
@@ -734,7 +736,7 @@ export const updateMilestoneAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/dashboard/projects",
-    "Milestone updated successfully",
+    "Milestone updated successfully"
   );
 };
 
@@ -749,7 +751,7 @@ export const deleteMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-in",
-      "You must be logged in to delete a milestone",
+      "You must be logged in to delete a milestone"
     );
   }
 
@@ -759,7 +761,7 @@ export const deleteMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Milestone ID is required",
+      "Milestone ID is required"
     );
   }
 
@@ -774,7 +776,7 @@ export const deleteMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      "Milestone not found",
+      "Milestone not found"
     );
   }
 
@@ -787,7 +789,7 @@ export const deleteMilestoneAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/dashboard/projects",
-      `Failed to delete milestone: ${error.message}`,
+      `Failed to delete milestone: ${error.message}`
     );
   }
 
@@ -797,6 +799,6 @@ export const deleteMilestoneAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/dashboard/projects",
-    "Milestone deleted successfully",
+    "Milestone deleted successfully"
   );
 };

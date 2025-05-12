@@ -106,7 +106,7 @@ export default function DebugFeedPage() {
       </Card>
 
       <div className="text-sm text-muted-foreground">
-        <p>If you're experiencing issues with the feed:</p>
+        <p>If you&apos;re experiencing issues with the feed:</p>
         <ol className="list-decimal pl-5 space-y-1 mt-2">
           <li>Make sure you have at least one project</li>
           <li>Make sure the project has at least one milestone</li>

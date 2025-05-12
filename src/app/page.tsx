@@ -13,9 +13,7 @@ import { createClient } from "../../supabase/server";
 
 export default async function Home() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await supabase.auth.getUser();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50">
@@ -29,7 +27,7 @@ export default async function Home() {
             <h2 className="text-3xl font-bold mb-4">Key Features</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               A minimal project tracking dashboard with everything you need and
-              nothing you don't.
+              nothing you don&apos;t.
             </p>
           </div>
 
@@ -122,7 +120,7 @@ export default async function Home() {
               </h2>
               <p className="text-gray-600 mb-6">
                 Our dashboard provides a distraction-free environment to focus
-                on what matters most - your project's progress.
+                on what matters most - your project&apos;s progress.
               </p>
               <ul className="space-y-3">
                 {[

@@ -46,7 +46,7 @@ export default async function ProjectsPage() {
             <div className="bg-secondary/50 text-sm p-3 px-4 rounded-lg text-muted-foreground flex gap-2 items-center">
               <InfoIcon size="14" />
               <span>
-                You don't have any projects yet. Create your first project to
+                You don&apos;t have any projects yet. Create your first project to
                 get started.
               </span>
             </div>

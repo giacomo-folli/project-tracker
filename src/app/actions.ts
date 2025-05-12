@@ -5,31 +5,27 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "../../supabase/server";
 import { Tables, TablesInsert } from "@/types/supabase";
+import { SupabaseClient } from "@supabase/supabase-js";
 
 // Helper function to update project progress based on milestones
-async function updateProjectProgress(supabase: any, projectId: string) {
+async function updateProjectProgress(supabase: SupabaseClient, projectId: string) {
   try {
-    // Get all milestones for the project
     const { data: milestones, error: milestonesError } = await supabase
       .from("milestones")
       .select("*")
       .eq("project_id", projectId);
 
     if (milestonesError) {
-      console.error("Error fetching milestones:", milestonesError);
-      return;
+      throw new Error(milestonesError.message);
     }
 
-    // Calculate progress percentage
+    const completedMilestones = milestones.filter((m: { is_completed: boolean }) => m.is_completed);
+
     let progress = 0;
-    if (milestones && milestones.length > 0) {
-      const completedMilestones = milestones.filter((m: any) => m.is_completed);
-      progress = Math.round(
-        (completedMilestones.length / milestones.length) * 100,
-      );
+    if (milestones.length > 0) {
+      progress = (completedMilestones.length / milestones.length) * 100;
     }
 
-    // Update the project progress
     const { error: updateError } = await supabase
       .from("projects")
       .update({
@@ -39,10 +35,10 @@ async function updateProjectProgress(supabase: any, projectId: string) {
       .eq("id", projectId);
 
     if (updateError) {
-      console.error("Error updating project progress:", updateError);
+      throw new Error(updateError.message);
     }
   } catch (error) {
-    console.error("Error in updateProjectProgress:", error);
+    console.error("Error in updateProjectProgress:", (error as Error).message);
   }
 }
 

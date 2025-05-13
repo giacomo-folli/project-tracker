@@ -23,18 +23,11 @@ export default async function DashboardFeedPage() {
     return redirect("/sign-in");
   }
 
-  console.log("Authenticated user ID:", user.id);
-
   // First, check if we can fetch basic feed items
   const { data: basicFeedItems, error: basicError } = await supabase
     .from("feed_items")
     .select("*")
     .order("created_at", { ascending: false });
-
-  console.log("Basic feed items check:", {
-    count: basicFeedItems?.length || 0,
-    error: basicError ? basicError.message : null,
-  });
 
   // Now try the full query with relationships
   const { data: feedItems, error } = await supabase
@@ -51,24 +44,16 @@ export default async function DashboardFeedPage() {
     )
     .order("created_at", { ascending: false });
 
-  console.log("Full feed items query result:", {
-    count: feedItems?.length || 0,
-    error: error ? error.message : null,
-    firstItem: feedItems && feedItems.length > 0 ? feedItems[0].id : null,
-  });
+  // Feed items fetched successfully
 
   // If no feed items exist, let's create a test one for debugging
   if (!feedItems || feedItems.length === 0) {
-    console.log("No feed items found, checking for projects and milestones");
-
     // Check if there are any projects
     const { data: projects } = await supabase
       .from("projects")
       .select("*")
       .eq("user_id", user.id)
       .limit(1);
-
-    console.log("Projects check:", { count: projects?.length || 0 });
 
     if (projects && projects.length > 0) {
       // Check if there are any milestones for this project
@@ -77,8 +62,6 @@ export default async function DashboardFeedPage() {
         .select("*")
         .eq("project_id", projects[0].id)
         .limit(1);
-
-      console.log("Milestones check:", { count: milestones?.length || 0 });
     }
   }
 

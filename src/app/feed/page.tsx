@@ -27,7 +27,6 @@ export default async function FeedPage() {
     )
     .order("created_at", { ascending: false });
 
-  console.log("Feed items fetched:", feedItems?.length || 0);
   if (error) {
     console.error("Error fetching feed items:", error);
   }

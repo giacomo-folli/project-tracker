@@ -1,0 +1,64 @@
+# Functional Requirements for Projekt - Project Management Tool
+
+## Authentication
+- User registration with email and password
+- Email verification
+- User login/logout
+- Password reset functionality
+- User profile management
+- Profile picture upload and management
+
+## Project Management
+- Create new projects with name, description, and status
+- Edit existing projects
+- Delete projects
+- Track project progress as a percentage
+- Set project visibility (public/private)
+- Generate unique public share URLs for public projects
+
+## Milestone Management
+- Create milestones for projects
+- Set milestone title, description, and due date
+- Mark milestones as complete/incomplete
+- Delete milestones
+- Automatic project progress calculation based on milestone completion
+
+## Dashboard & Analytics
+- Overview dashboard with project statistics
+- Visual representation of project progress
+- Milestone status visualization
+- Project status indicators
+
+## Activity Feed
+- Track and display project and milestone activities
+- Show when milestones are created or completed
+- Allow users to like and comment on feed items
+- Display user avatars and names with feed items
+
+## Public Sharing
+- Generate unique, secure URLs for public projects
+- Public view of project progress and milestones
+- Real-time updates of project status for public views
+- Copy-to-clipboard functionality for share links
+
+## User Experience
+- Responsive design for all device sizes
+- Intuitive navigation between projects and milestones
+- Clear visual indicators for project and milestone status
+- Form validation and error handling
+- Loading states for asynchronous operations
+
+## Security
+- Secure authentication with Supabase
+- Protected routes for authenticated users
+- Data validation on both client and server
+- Secure storage for user profile pictures
+- Row-level security for database access
+
+## Technical Requirements
+- Next.js application with App Router
+- Supabase for authentication and database
+- Tailwind CSS for styling
+- TypeScript for type safety
+- Server-side rendering for improved SEO and performance
+- Client-side interactivity for dynamic features

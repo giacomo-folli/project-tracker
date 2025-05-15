@@ -235,9 +235,15 @@ export default function FeedItem({
           <Avatar>
             <AvatarImage src={feedItem.users?.avatar_url || undefined} />
             <AvatarFallback>
-              {(
-                (feedItem.data as any)?.user_name?.substring(0, 2) || "U"
-              ).toUpperCase()}
+              {(() => {
+                try {
+                  return (
+                    (feedItem.data as any)?.user_name?.substring(0, 2) || "U"
+                  ).toUpperCase();
+                } catch (e) {
+                  return "U";
+                }
+              })()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">

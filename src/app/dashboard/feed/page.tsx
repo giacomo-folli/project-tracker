@@ -30,19 +30,33 @@ export default async function DashboardFeedPage() {
     .order("created_at", { ascending: false });
 
   // Now try the full query with relationships
-  const { data: feedItems, error } = await supabase
-    .from("feed_items")
-    .select(
-      `
-      *,
-      likes(*),
-      comments(*),
-      users(*),
-      projects(*),
-      milestones(*)
-      `,
-    )
-    .order("created_at", { ascending: false });
+  // Use a try-catch to handle potential join errors
+  let feedItems = [];
+  let error = null;
+
+  try {
+    const response = await supabase
+      .from("feed_items")
+      .select(
+        `
+        *,
+        likes(*),
+        comments(*),
+        users(*),
+        projects(*),
+        milestones(*)
+        `,
+      )
+      .order("created_at", { ascending: false });
+
+    feedItems = response.data || [];
+    error = response.error;
+  } catch (e) {
+    console.error("Error fetching feed items:", e);
+    error = { message: "Failed to load feed items. Please try again." };
+    // Fall back to basic feed items if available
+    feedItems = basicFeedItems || [];
+  }
 
   // Feed items fetched successfully
 

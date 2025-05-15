@@ -149,6 +149,8 @@ export default function ProjectForm({
                   defaultChecked={project?.is_public || false}
                   className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                 />
+                {/* Hidden field to ensure the form knows when checkbox is unchecked */}
+                <input type="hidden" name="is_public_submitted" value="true" />
                 <label
                   htmlFor="is_public"
                   className="ml-2 text-sm text-gray-600"

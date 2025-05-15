@@ -119,7 +119,15 @@ export default function MilestoneForm({
                 type="date"
                 defaultValue={
                   milestone?.due_date
-                    ? new Date(milestone.due_date).toISOString().split("T")[0]
+                    ? (() => {
+                        try {
+                          return new Date(milestone.due_date)
+                            .toISOString()
+                            .split("T")[0];
+                        } catch (e) {
+                          return "";
+                        }
+                      })()
                     : ""
                 }
                 className="col-span-3"

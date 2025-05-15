@@ -1,0 +1,192 @@
+# Product Requirements Document: Projekt
+
+## Product Overview
+Projekt is a modern project management tool designed to help users track project progress, manage milestones, and share project status with stakeholders. The application provides a clean, intuitive interface for creating and managing projects, with a focus on progress visualization and public sharing capabilities.
+
+## Target Audience
+- Freelancers and independent professionals
+- Small to medium-sized teams
+- Project managers
+- Anyone who needs to track project progress and share updates with clients or stakeholders
+
+## User Personas
+
+### Alex - Freelance Developer
+Alex works on multiple client projects simultaneously and needs a simple way to track progress and share updates with clients without requiring them to create accounts.
+
+### Taylor - Project Manager
+Taylor manages multiple projects for a small agency and needs to keep track of milestones, deadlines, and overall progress for reporting to stakeholders.
+
+### Jordan - Startup Founder
+Jordan runs a small startup and needs to track product development progress and share updates with investors and team members.
+
+## Core Features
+
+### User Authentication
+- **Sign Up**: Users can create an account with email and password
+- **Sign In**: Existing users can log in to their account
+- **Password Reset**: Users can reset their password via email
+- **Profile Management**: Users can update their profile information and upload a profile picture
+
+### Project Management
+- **Project Creation**: Users can create new projects with a name, description, and status
+- **Project Listing**: Dashboard displays all user projects with progress indicators
+- **Project Details**: Detailed view of a project showing milestones and progress
+- **Project Editing**: Users can update project details and status
+- **Project Deletion**: Users can delete projects they no longer need
+
+### Milestone Tracking
+- **Milestone Creation**: Add milestones to projects with title, description, and due date
+- **Milestone Completion**: Mark milestones as complete or incomplete
+- **Milestone Management**: Edit or delete existing milestones
+- **Progress Calculation**: Automatic calculation of project progress based on completed milestones
+
+### Public Sharing
+- **Public URLs**: Generate unique URLs for sharing project progress publicly
+- **Public View**: Non-authenticated users can view shared project progress and milestones
+- **Share Controls**: Toggle project visibility between public and private
+- **Copy Link**: Easily copy share links to clipboard
+
+### Activity Feed
+- **Project Activity**: Track and display activities related to projects and milestones
+- **Social Interactions**: Allow users to like and comment on feed items
+- **Chronological Display**: Show activities in reverse chronological order
+- **User Attribution**: Display user information with each activity
+
+## User Flows
+
+### Project Creation Flow
+1. User logs in to dashboard
+2. User clicks "Create Project" button
+3. User fills out project details form
+4. User submits form to create project
+5. User is redirected to project details page
+6. User adds milestones to the project
+
+### Public Sharing Flow
+1. User navigates to a project's details page
+2. User toggles project visibility to public
+3. System generates a unique public URL
+4. User copies the share link
+5. User shares the link with stakeholders
+6. Stakeholders can view project progress without logging in
+
+### Milestone Completion Flow
+1. User navigates to a project's details page
+2. User marks a milestone as complete
+3. System updates project progress percentage
+4. System creates a feed item for the completed milestone
+5. Project status is updated in real-time
+
+## Technical Specifications
+
+### Frontend
+- **Framework**: Next.js with App Router
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **State Management**: React hooks and context
+- **Data Fetching**: Server components and client-side fetching
+
+### Backend
+- **Authentication**: Supabase Auth
+- **Database**: Supabase PostgreSQL
+- **Storage**: Supabase Storage for profile pictures
+- **API**: Next.js API routes and Supabase functions
+
+### Data Models
+
+#### User
+- id (UUID)
+- email (String)
+- full_name (String)
+- avatar_url (String, nullable)
+- created_at (Timestamp)
+- updated_at (Timestamp)
+
+#### Project
+- id (UUID)
+- user_id (UUID, foreign key to User)
+- name (String)
+- description (String, nullable)
+- status (String: not_started, in_progress, completed, on_hold)
+- progress (Integer, 0-100)
+- is_public (Boolean)
+- public_share_id (UUID, nullable)
+- created_at (Timestamp)
+- updated_at (Timestamp)
+
+#### Milestone
+- id (UUID)
+- project_id (UUID, foreign key to Project)
+- title (String)
+- description (String, nullable)
+- is_completed (Boolean)
+- due_date (Date, nullable)
+- created_at (Timestamp)
+- updated_at (Timestamp)
+
+#### Feed Item
+- id (UUID)
+- user_id (UUID, foreign key to User)
+- project_id (UUID, foreign key to Project)
+- milestone_id (UUID, foreign key to Milestone)
+- type (String: milestone_created, milestone_completed, etc.)
+- data (JSON)
+- created_at (Timestamp)
+
+#### Like
+- id (UUID)
+- user_id (UUID, foreign key to User)
+- feed_item_id (UUID, foreign key to Feed Item)
+- created_at (Timestamp)
+
+#### Comment
+- id (UUID)
+- user_id (UUID, foreign key to User)
+- feed_item_id (UUID, foreign key to Feed Item)
+- content (String)
+- created_at (Timestamp)
+
+## Non-Functional Requirements
+
+### Performance
+- Page load time under 2 seconds
+- Smooth interactions with no perceivable lag
+- Efficient database queries with proper indexing
+
+### Security
+- Secure authentication with email verification
+- Protected routes for authenticated users
+- Row-level security in database
+- Secure handling of user data
+
+### Scalability
+- Architecture that supports growing user base
+- Efficient database design for scaling
+- Optimized queries for performance
+
+### Accessibility
+- WCAG 2.1 AA compliance
+- Keyboard navigation support
+- Screen reader compatibility
+- Sufficient color contrast
+
+## Future Enhancements (Roadmap)
+
+### Phase 2
+- Team collaboration features
+- Role-based access control
+- File attachments for projects and milestones
+- Calendar view for milestones
+
+### Phase 3
+- Mobile application
+- Advanced analytics and reporting
+- Integration with third-party tools (Slack, GitHub, etc.)
+- Custom project templates
+
+## Success Metrics
+- User registration and retention rates
+- Number of projects created
+- Number of milestones completed
+- Frequency of public sharing
+- User engagement with the activity feed

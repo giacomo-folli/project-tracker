@@ -97,11 +97,9 @@ export default async function ProjectDetailsPage({
     }
   };
 
-  // const shareUrl = project.public_share_id
-  // ? `${process.env.NEXT_PUBLIC_SITE_URL || window?.location?.origin}/projects/${project.public_share_id}`
-  // : null;
-
-  const shareUrl = `https://xenodochial-leavitt4-ntlw8.view-3.tempo-dev.app/projects/${project.public_share_id}`;
+  const shareUrl = project.public_share_id
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL?.split("//")[1].split(".")[0]}.view-3.tempo-dev.app/projects/${project.public_share_id}`
+    : null;
 
   return (
     <>

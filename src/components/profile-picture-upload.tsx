@@ -57,6 +57,10 @@ export default function ProfilePictureUpload({
         .from("avatars")
         .getPublicUrl(filePath);
 
+      if (!publicUrlData) {
+        throw new Error("Failed to get public URL for uploaded file");
+      }
+
       const avatarUrl = publicUrlData.publicUrl;
 
       // Update the user profile with the new avatar URL
